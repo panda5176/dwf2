@@ -1,12 +1,19 @@
-FROM python:3.8.16
+FROM amazon/aws-lambda-python:3.8
 
-WORKDIR /app
+ARG FUNCTION_DIR="/var/task/"
 
-COPY . /app
+COPY ./ ${FUNCTION_DIR}
 
-# RUN pip3 install Flask
 RUN pip3 install -r requirements.txt
 
-ENV FLASK_APP dwf2
+# ENV FLASK_APP dwf2
 
-ENTRYPOINT flask run --host 0.0.0.0
+# ENTRYPOINT flask run --host 0.0.0.0
+
+RUN ZAPPA_HANDLER_PATH=$( \
+    python -c "from zappa import handler; print (handler.__file__)" \
+    ) \
+    && echo $ZAPPA_HANDLER_PATH \
+    && cp $ZAPPA_HANDLER_PATH ${FUNCTION_DIR}
+
+CMD [ "handler.lambda_handler" ]
