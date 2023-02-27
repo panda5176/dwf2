@@ -8,6 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      ECR_IMAGE_URI: ${{ ECR_IMAGE_URI }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,7 +28,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t dwf2
       - name: Tag Docker image
-        run: docker tag dwf2 ${{ ECR_IMAGE_URI }}
+        run: docker tag dwf2 $ECR_IMAGE_URI
       - name: Configure AWS credentials
         run: aws-actions/configure-aws-credentials@v1
         with:
@@ -36,8 +38,8 @@ jobs:
       - name: Transfers authority from AWS ECR to Docker
         run: >
           aws ecr get-login-password |
-           docker login --username AWS --password-stdin ${{ ECR_IMAGE_URI }}
+           docker login --username AWS --password-stdin $ECR_IMAGE_URI
       - name: Push Docker image to AWS ECR
-        run: docker push ${{ ECR_IMAGE_URI }}
+        run: docker push $ECR_IMAGE_URI
       - name: Deploy application from AWS ECR to Lambda with Zappa
-        run: zappa deploy dwf2 -d ${{ ECR_IMAGE_URI }}
+        run: zappa deploy dwf2 -d $ECR_IMAGE_URI
