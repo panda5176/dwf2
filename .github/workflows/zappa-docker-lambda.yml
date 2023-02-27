@@ -35,16 +35,15 @@ jobs:
           aws-region: ap-northeast-2
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Check AWS credentials
+        run: aws configure list-profiles
+      - name: Save python settings for production with Zappa
+        run: zappa save-python-settings-file prod
       - name: Transfers authority from AWS ECR to Docker
         run: >
           aws ecr get-login-password |
            docker login --username AWS --password-stdin $ECR_IMAGE_URI
       - name: Push Docker image to AWS ECR
         run: docker push $ECR_IMAGE_URI
-      - name: Write AWS config profile
-        run: >
-          echo "[default]\nregion=ap-northeast-2\noutput=json\n" > ~/.aws/config
-      - name: Save python settings for production with Zappa
-        run: zappa save-python-settings-file prod
       - name: Deploy application from AWS ECR to Lambda with Zappa
         run: zappa deploy prod -d $ECR_IMAGE_URI
