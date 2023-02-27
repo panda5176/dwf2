@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ECR_IMAGE_URI: ${{ secrets.ECR_IMAGE_URI }}
+      AWS_REGION: ap-northeast-2
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -30,20 +33,14 @@ jobs:
       - name: Tag Docker image
         run: docker tag dwf2 $ECR_IMAGE_URI
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ap-northeast-2
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      - name: Check AWS credentials
-        run: aws configure list-profiles
-      - name: Save python settings for production with Zappa
-        run: zappa save-python-settings-file prod
+        run: aws configure
       - name: Transfers authority from AWS ECR to Docker
         run: >
           aws ecr get-login-password |
            docker login --username AWS --password-stdin $ECR_IMAGE_URI
       - name: Push Docker image to AWS ECR
         run: docker push $ECR_IMAGE_URI
+      - name: Save python settings for production with Zappa
+        run: zappa save-python-settings-file prod
       - name: Deploy application from AWS ECR to Lambda with Zappa
         run: zappa deploy prod -d $ECR_IMAGE_URI
