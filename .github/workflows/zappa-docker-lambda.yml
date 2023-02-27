@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      ECR_IMAGE_URI: ${{ ECR_IMAGE_URI }}
+      ECR_IMAGE_URI: ${{ secrets.ECR_IMAGE_URI }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
