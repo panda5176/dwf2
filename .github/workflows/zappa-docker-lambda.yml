@@ -41,10 +41,10 @@ jobs:
            docker login --username AWS --password-stdin $ECR_IMAGE_URI
       - name: Push Docker image to AWS ECR
         run: docker push $ECR_IMAGE_URI
+      - name: Save python settings for production with Zappa
+        run: zappa save-python-settings-file prod
       - name: Deploy application from AWS ECR to Lambda with Zappa
-        run: |
-          zappa save-python-settings-file prod
-          zappa deploy prod -d $ECR_IMAGE_URI
+        run: zappa deploy prod -d $ECR_IMAGE_URI
         env:
           AWS_REGION: ap-northeast-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
