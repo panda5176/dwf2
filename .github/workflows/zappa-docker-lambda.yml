@@ -42,4 +42,4 @@ jobs:
       - name: Push Docker image to AWS ECR
         run: docker push $ECR_IMAGE_URI
       - name: Deploy application from AWS ECR to Lambda with Zappa
-        run: zappa deploy dwf2 -d $ECR_IMAGE_URI
+        run: zappa deploy prod -d $ECR_IMAGE_URI
