@@ -1,5 +1,5 @@
 name: Zappa Docker Lambda Deploy
-run-name: ${{ github.actor }} deploys dwf2 through Zappa-Docker-Lambda
+run-name: Deployment of ${{ github.repository }} through Zappa-Docker-Lambda
 on:
   push:
     branches: [ "main" ]
@@ -43,3 +43,7 @@ jobs:
         run: docker push $ECR_IMAGE_URI
       - name: Deploy application from AWS ECR to Lambda with Zappa
         run: zappa deploy prod -d $ECR_IMAGE_URI
+        env:
+          AWS_DEFAULT_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
