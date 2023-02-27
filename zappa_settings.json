@@ -2,7 +2,6 @@
     "dev": {
         "aws_region": "ap-northeast-2",
         "app_function": "dwf2.__init__.app",
-        "profile_name": "default",
         "project_name": "dwf2",
         "runtime": "python3.9",
         "s3_bucket": "zappa-fr0mmb16m"
@@ -10,7 +9,6 @@
     "prod": {
         "aws_region": "ap-northeast-2",
         "app_function": "dwf2.__init__.app",
-        "profile_name": "default",
         "project_name": "dwf2",
         "runtime": "python3.9",
         "s3_bucket": "zappa-fr0mmb16m"
