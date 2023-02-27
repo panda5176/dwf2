@@ -1,0 +1,43 @@
+name: Zappa Docker Lambda Deploy
+run-name: ${{ github.actor }} deploys dwf2 through Zappa-Docker-Lambda
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Activate a virtual environment
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+      - name: Install Python libraries with pip
+        run: |
+          pip3 install --upgrade pip
+          pip3 install -r requirements.txt
+      - name: Build Docker image
+        run: docker build -t dwf2
+      - name: Tag Docker image
+        run: docker tag dwf2 ${{ ECR_IMAGE_URI }}
+      - name: Configure AWS credentials
+        run: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Transfers authority from AWS ECR to Docker
+        run: >
+          aws ecr get-login-password |
+           docker login --username AWS --password-stdin ${{ ECR_IMAGE_URI }}
+      - name: Push Docker image to AWS ECR
+        run: docker push ${{ ECR_IMAGE_URI }}
+      - name: Deploy application from AWS ECR to Lambda with Zappa
+        run: zappa deploy dwf2 -d ${{ ECR_IMAGE_URI }}
